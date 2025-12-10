@@ -748,6 +748,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'sql-formatter', -- Used to format SQL code
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -800,11 +801,17 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        sql = { 'sql_formatter' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      formatters = {
+        sql_formatter = {
+          args = { '-l', 'postgresql' },
+        },
       },
     },
   },
@@ -951,24 +958,77 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
-
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
+  },
+  {
+    'SmiteshP/nvim-navic',
+    lazy = true,
+    opts = {
+      icons = {
+        File = ' ',
+        Module = ' ',
+        Namespace = ' ',
+        Package = ' ',
+        Class = ' ',
+        Method = ' ',
+        Property = ' ',
+        Field = ' ',
+        Constructor = ' ',
+        Enum = ' ',
+        Interface = ' ',
+        Function = ' ',
+        Variable = ' ',
+        Constant = ' ',
+        String = ' ',
+        Number = ' ',
+        Boolean = ' ',
+        Array = ' ',
+        Object = ' ',
+        Key = ' ',
+        Null = ' ',
+        EnumMember = ' ',
+        Struct = ' ',
+        Event = ' ',
+        Operator = ' ',
+        TypeParameter = ' ',
+      },
+      lsp = { auto_attach = true },
+      highlight = true,
+      separator = ' > ',
+      depth_limit = 5,
+    },
+  },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons', 'SmiteshP/nvim-navic' },
+    opts = {
+      options = {
+        icons_enabled = vim.g.have_nerd_font,
+        theme = 'auto',
+        component_separators = { left = '', right = '' },
+        section_separators = { left = '', right = '' },
+      },
+      sections = {
+        lualine_a = { 'mode' },
+        lualine_b = { 'branch', 'diff', 'diagnostics' },
+        lualine_c = {
+          { 'filename', path = 1 }, -- 0 = just filename, 1 = relative path, 2 = absolute path
+          {
+            function()
+              return require('nvim-navic').get_location()
+            end,
+            cond = function()
+              return require('nvim-navic').is_available()
+            end,
+          },
+        },
+        lualine_x = { 'encoding', 'fileformat', 'filetype' },
+        lualine_y = { 'progress' },
+        lualine_z = { 'location' },
+      },
+    },
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
