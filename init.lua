@@ -1033,6 +1033,10 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter-context',
+      'nvim-treesitter/nvim-treesitter-refactor',
+    },
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
@@ -1047,6 +1051,19 @@ require('lazy').setup({
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = false,
+          node_incremental = '<Tab>',
+          scope_incremental = false,
+          node_decremental = '<S-Tab>',
+        },
+      },
+      refactor = {
+        highlight_definitions = { enable = true },
+        highlight_current_scope = { enable = false },
+      },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
